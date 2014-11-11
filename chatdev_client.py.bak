@@ -1,0 +1,76 @@
+from socket import *
+import xml.etree.ElementTree as ET
+
+#############TODO##############
+### Break code up into classes/definitions - look into Python arrangement
+### Get XML sending to server and parsing response into lists
+### Connect to other clients based on location
+### Multi-threaded chat connections for more than one chat\
+### Look into forwarding incoming data to threaded chat windows
+### Generate message XML based on user input, send to specified connected client
+### Look into GUI basics for display
+### ### Display list of online users in GUI list w/ link to start chat thread
+### ### Display chat window as new thread for each connected user
+
+#class ClientSetup ():
+#    def __init__():
+# http://www.devshed.com/c/a/Python/Sockets-in-Python-Into-the-World-of-Python-Network-Programming/
+host = 'localhost'
+port = 38120
+buffer = 1024
+address = (host, port)
+serverSock = socket(AF_INET,SOCK_STREAM)
+print "Socket created"
+
+serverSock.connect(address)
+
+"""username='optimarcusprime'
+realname='Marcus'
+ip='localhost'
+progLanguages=['Python','Java','PHP','HTML','CSS']
+
+# Generte handshake XML
+xmluser = ET.Element("user")
+xmlusername = ET.SubElement(xmluser, "username")
+xmlusername.text = username
+xmlrealname = ET.SubElement(xmluser, "realname")
+xmlrealname.text = realname
+xmlip = ET.SubElement(xmluser, "ip")
+xmlip.text = ip
+xmlprog_languages = ET.SubElement(xmluser, "prog_languages")
+for lang in progLanguages:
+    xmllanguage = ET.SubElement(xmlprog_languages, "language")
+    xmllanguage.text = lang
+#userXML = ET.ElementTree(xmluser)
+XMLstring = ET.tostring(xmluser)
+
+# Go into loop to keep connection with server active
+while 1:
+    # Send user XML to server
+    print "Sending user XML to server"
+
+    # Break XML into 1024 sized parts
+    # Loop, sending parts one by one until none left
+    serverSock.send(data)
+    
+    # Receive online user data back
+    final_data = []
+    temp_data=""
+    End = "</users>"
+    while True:
+        temp_data = serverSock.recv(1024)
+        if End in temp_data:
+            final_data.append(temp_data[:temp_data.find(End)])
+            break
+        final_data.append(temp_data)
+        if len(final_data) > 1:
+            # Check if End was split
+            last_pair = final_data[-2] + final_data[-1]
+            if End in last_pair:
+                final_data[-2] = last_pair[:last_pair.find( End)]
+                final_data.pop()
+                break
+        print "Received data:"
+        print ''.join(final_data)
+
+serverSock.close()"""

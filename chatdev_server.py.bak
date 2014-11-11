@@ -1,0 +1,104 @@
+from socket import *
+from threading import Thread
+import xml.etree.ElementTree as ET
+
+class Main (): 
+    def __init__(self):
+        self.host = 'localhost'  
+        self.port = 38120
+        self.address = (self.host, self.port)
+        self.userListing = userDict()
+        self.userListing.userDictAdd("optimarcusprime",'Marcus','127.0.0.1',['PHP','Java','Python'])
+        print self.userListing.userDictGet()
+        self.socketCreate(self.address)
+
+    def socketCreate(self, address):
+        # Set up TCP socket for incoming XML string
+        print "Creating TCP socket for internet connections"
+        serverSock = socket(AF_INET, SOCK_STREAM)
+        print "Setting socket options to allow address reuse (testing)"
+        serverSock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        print "Binding socket to port", self.port, "on host", self.host
+        serverSock.bind(address)
+        print "Initiating socket listening"
+        serverSock.listen(4)
+        
+        
+        print "Accepting incoming connections on socket..."
+        while True:
+            clientSock, clientAddress = serverSock.accept()
+            receivedXML = NetworkThread(clientSock, clientAddress).start()
+            self.unpackedXML = XML.unpackXML(receivedXML)
+            
+        serverSock.close()
+
+class userDict():
+    def __init__ (self):
+        """Set up the dictionary used to store online users
+        userDictLayout = {'username' : ['realName', 'ip', progLanguages['lang', 'lang', 'lang']}"""
+        self.userDict = {}
+    
+    def userDictAdd (self, username, realName, ip, progLanguages):
+        self.userDict[username] = [realName, ip, progLanguages]
+        
+    def userDictGet (self):
+        return self.userDict
+    
+class XML():
+    """Class to parse and store XML data"""
+    def __init__ (self):
+        pass
+    
+    def unpackXML(self, stringOfXML):
+        self.parsedXML = ET.fromstring(stringOfXML)
+        return self.parsedXML
+    
+    def addXML(self, element):
+        username = element.find('username').get('username')
+        realname = element.find('realname').get('realname')
+        ip = element.find('ip').get('ip')
+        languages = []
+        for lang in element.findall('language'):
+            languages.append(lang)
+        userListing = userDict()
+        userListing.userDictAdd(username, realname, ip, languages)
+
+class NetworkThread (Thread):
+    """Class to connect to clients and begin threads"""
+    
+    # Thread's __init__ needs to be overridden to accept needed parameters
+    def __init__ (self, clientSock, clientAddress):
+        self.clientSock = clientSock
+        self.clientAddress = clientAddress
+        Thread.__init__(self)
+        
+    def run(self):
+        print "Client connected from ", self.clientAddress
+     
+        final_data = []
+        temp_data = ""
+        End = "</user>"
+        while True:
+            temp_data = self.clientSock.recv(1024)
+            if End in temp_data:
+                final_data.append(temp_data[:temp_data.find(End)])
+                break
+            final_data.append(temp_data)
+            if len(final_data) > 1:
+                # Check if End was split
+                last_pair = final_data[-2] + final_data[-1]
+                if End in last_pair:
+                    final_data[-2] = last_pair[:last_pair.find( End)]
+                    final_data.pop()
+                    break
+        final_data = ''.join(final_data)
+        print "Received data:"
+        print final_data
+        return final_data
+        
+        # Parse received data and push to current online user storage structure
+        # Create XML of current online users
+        # Send online user XML back to user
+        # Break connection, break thread
+        
+Main()
